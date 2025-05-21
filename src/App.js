@@ -80,18 +80,16 @@ function App() {
             style={{
               ...styles.tab,
               backgroundColor: list.id === activeListId ? '#444' : '#333',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingRight: '8px',
+              position: 'relative',
+              paddingRight: '30px',
             }}
             onClick={() => setActiveListId(list.id)}
           >
             <input
               value={list.name}
               onChange={e => renameList(list.id, e.target.value)}
-              style={styles.input}
-              onClick={e => e.stopPropagation()} // prevent switching tabs when renaming
+              style={styles.inputWithDelete}
+              onClick={e => e.stopPropagation()} // prevent tab switch when renaming
             />
             <button
               onClick={e => {
@@ -131,7 +129,7 @@ function App() {
                   <div style={styles.taskMeta}>
                     <small>{task.createdAt}</small>
                     <button onClick={() => deleteTask(task.id)} style={styles.deleteButton} title="Delete Task" aria-label="Delete Task">
-                      <span style={{color: 'red', fontWeight: 'bold', fontSize: '16px', lineHeight: 1, cursor: 'pointer'}}>×</span>
+                      <span style={{color: 'red', fontWeight: 'bold', fontSize: '22px', lineHeight: 1, cursor: 'pointer'}}>×</span>
                     </button>
                   </div>
                 </li>
@@ -165,7 +163,9 @@ const styles = {
   tab: {
     padding: '5px',
     borderRadius: '5px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
   },
   addListButton: {
     padding: '5px',
@@ -196,6 +196,15 @@ const styles = {
     backgroundColor: '#333',
     color: '#fff',
     flex: 1
+  },
+  inputWithDelete: {
+    padding: '8px 30px 8px 8px', // space on right for the X
+    borderRadius: '4px',
+    border: '1px solid #555',
+    backgroundColor: '#333',
+    color: '#fff',
+    flex: 1,
+    position: 'relative',
   },
   button: {
     padding: '8px 16px',
@@ -231,18 +240,19 @@ const styles = {
     cursor: 'pointer'
   },
   deleteListButton: {
+    position: 'absolute',
+    right: '8px',
+    top: '50%',
+    transform: 'translateY(-50%)',
     backgroundColor: 'transparent',
     border: 'none',
     color: '#fff',
     fontWeight: 'bold',
     cursor: 'pointer',
-    fontSize: '18px',
+    fontSize: '22px',
     lineHeight: '1',
     padding: '0',
-    marginLeft: '8px',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
+    height: 'auto',
   }
 };
 
