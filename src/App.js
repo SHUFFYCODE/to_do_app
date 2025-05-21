@@ -1,140 +1,208 @@
 import React, { useState, useEffect } from 'react';
 
 function App() {
-  const [task, setTask] = useState('');
-  const [category, setCategory] = useState('General');
-  const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem('tasks');
-    return saved ? JSON.parse(saved) : [];
+  const [lists, setLists] = useState(() => {
+    const saved = localStorage.getItem('lists');
+    return saved ? JSON.parse(saved) : [
+      { id: Date.now(), name: 'Default', tasks: [] }
+    ];
   });
 
+  const [taskText, setTaskText] = useState('');
+  const [activeListId, setActiveListId] = useState(lists[0]?.id || null);
+
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem('lists', JSON.stringify(lists));
+  }, [lists]);
 
   const addTask = () => {
-    if (!task.trim()) return;
-    const newTask = {
+    if (!taskText.trim()) return;
+
+    const updatedLists = lists.map(list =>
+      list.id === activeListId
+        ? {
+            ...list,
+            tasks: [
+              ...list.tasks,
+              { id: Date.now(), text: taskText, createdAt: new Date().toLocaleString() }
+            ]
+          }
+        : list
+    );
+    setLists(updatedLists);
+    setTaskText('');
+  };
+
+  const deleteTask = (taskId) => {
+    const updatedLists = lists.map(list =>
+      list.id === activeListId
+        ? { ...list, tasks: list.tasks.filter(task => task.id !== taskId) }
+        : list
+    );
+    setLists(updatedLists);
+  };
+
+  const addList = () => {
+    const newList = {
       id: Date.now(),
-      text: task,
-      time: new Date().toLocaleTimeString(),
-      category
+      name: `New List ${lists.length + 1}`,
+      tasks: []
     };
-    setTasks([...tasks, newTask]);
-    setTask('');
+    setLists([...lists, newList]);
+    setActiveListId(newList.id);
   };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(t => t.id !== id));
+  const renameList = (id, newName) => {
+    const updatedLists = lists.map(list =>
+      list.id === id ? { ...list, name: newName } : list
+    );
+    setLists(updatedLists);
   };
 
-  const categories = [...new Set(tasks.map(t => t.category))];
+  const activeList = lists.find(list => list.id === activeListId);
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Essential To-Do List</h1>
-
-      <div style={styles.inputContainer}>
-        <input
-          value={task}
-          onChange={e => setTask(e.target.value)}
-          placeholder="Enter new task"
-          style={styles.input}
-        />
-        <input
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          placeholder="Category (e.g. Indoor, Work, Kitchen)"
-          style={styles.input}
-        />
-        <button onClick={addTask} style={styles.addButton}>Add</button>
+      <div style={styles.sidebar}>
+        {lists.map(list => (
+          <div
+            key={list.id}
+            style={{
+              ...styles.tab,
+              backgroundColor: list.id === activeListId ? '#444' : '#333'
+            }}
+            onClick={() => setActiveListId(list.id)}
+          >
+            <input
+              value={list.name}
+              onChange={e => renameList(list.id, e.target.value)}
+              style={styles.input}
+            />
+          </div>
+        ))}
+        <button onClick={addList} style={styles.addListButton}>+ Add List</button>
       </div>
 
-      {categories.map(cat => (
-        <div key={cat} style={styles.section}>
-          <h2 style={styles.sectionTitle}>{cat}</h2>
-          <ul style={styles.list}>
-            {tasks
-              .filter(t => t.category === cat)
-              .map(task => (
+      <div style={styles.main}>
+        <h1 style={styles.title}>Essential To-Do List</h1>
+
+        {activeList && (
+          <>
+            <div style={styles.inputRow}>
+              <input
+                value={taskText}
+                onChange={e => setTaskText(e.target.value)}
+                placeholder="Enter new task"
+                style={styles.input}
+              />
+              <button onClick={addTask} style={styles.button}>Add</button>
+            </div>
+
+            <ul style={styles.taskList}>
+              {activeList.tasks.map(task => (
                 <li key={task.id} style={styles.taskItem}>
-                  <span>{task.text} <small style={styles.time}>({task.time})</small></span>
-                  <button onClick={() => deleteTask(task.id)} style={styles.deleteButton}>
-                    ❌
-                  </button>
+                  <span>{task.text}</span>
+                  <div style={styles.taskMeta}>
+                    <small>{task.createdAt}</small>
+                    <button onClick={() => deleteTask(task.id)} style={styles.deleteButton}>
+                      ❌
+                    </button>
+                  </div>
                 </li>
               ))}
-          </ul>
-        </div>
-      ))}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 const styles = {
   container: {
-    backgroundColor: '#121212',
-    color: '#f0f0f0',
+    display: 'flex',
+    backgroundColor: '#222',
+    color: '#fff',
     minHeight: '100vh',
-    padding: '30px',
     fontFamily: 'Arial, sans-serif'
   },
-  title: {
-    fontSize: '2em',
-    marginBottom: '20px'
-  },
-  inputContainer: {
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '20px',
-    flexWrap: 'wrap'
-  },
-  input: {
+  sidebar: {
+    width: '200px',
+    backgroundColor: '#111',
     padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #444',
-    backgroundColor: '#1e1e1e',
-    color: '#f0f0f0',
-    flex: '1 1 200px'
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
   },
-  addButton: {
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '4px',
-    backgroundColor: '#2196F3',
-    color: '#fff',
+  tab: {
+    padding: '5px',
+    borderRadius: '5px',
     cursor: 'pointer'
   },
-  section: {
-    marginTop: '30px'
+  addListButton: {
+    padding: '5px',
+    marginTop: '10px',
+    backgroundColor: '#555',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
   },
-  sectionTitle: {
-    borderBottom: '1px solid #555',
-    paddingBottom: '5px'
+  main: {
+    flex: 1,
+    padding: '30px 20px'
   },
-  list: {
+  title: {
+    fontSize: '24px',
+    marginBottom: '20px'
+  },
+  inputRow: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '20px'
+  },
+  input: {
+    padding: '8px',
+    borderRadius: '4px',
+    border: '1px solid #555',
+    backgroundColor: '#333',
+    color: '#fff',
+    flex: 1
+  },
+  button: {
+    padding: '8px 16px',
+    backgroundColor: '#444',
+    border: 'none',
+    color: '#fff',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  taskList: {
     listStyle: 'none',
     padding: 0
   },
   taskItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#1f1f1f',
+    backgroundColor: '#333',
     padding: '10px',
     borderRadius: '4px',
-    marginBottom: '8px'
+    marginBottom: '8px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  taskMeta: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: '4px'
   },
   deleteButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#a00',
     border: 'none',
-    color: 'red',
-    fontSize: '16px',
+    color: '#fff',
+    borderRadius: '3px',
+    padding: '2px 6px',
     cursor: 'pointer'
-  },
-  time: {
-    fontSize: '0.8em',
-    color: '#bbb'
   }
 };
 
