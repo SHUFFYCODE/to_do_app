@@ -84,6 +84,8 @@ function App() {
       </div>
 
       <div style={styles.main}>
+        <h1 style={styles.title}>Essential To-Do List</h1>
+
         {activeList && (
           <>
             <div style={styles.inputRow}>
@@ -149,6 +151,10 @@ const styles = {
   main: {
     flex: 1,
     padding: '30px 20px'
+  },
+  title: {
+    fontSize: '24px',
+    marginBottom: '20px'
   },
   inputRow: {
     display: 'flex',
