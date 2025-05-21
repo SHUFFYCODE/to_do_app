@@ -103,7 +103,7 @@ function App() {
               style={styles.deleteListButton}
               title="Delete List"
             >
-              ❌
+              x
             </button>
           </div>
         ))}
@@ -183,15 +183,14 @@ const styles = {
     cursor: 'pointer',
   },
   deleteListButton: {
-    backgroundColor: '#b33939',
+    backgroundColor: 'transparent',
     border: 'none',
     color: '#fff',
-    borderRadius: '3px',
-    padding: '2px 6px',
-    cursor: 'pointer',
     fontWeight: 'bold',
-    fontSize: '14px',
+    cursor: 'pointer',
+    fontSize: '16px',
     lineHeight: '1',
+    padding: '0 6px',
   },
   main: {
     flex: 1,
@@ -247,11 +246,11 @@ const styles = {
     gap: '4px',
   },
   deleteButton: {
-    backgroundColor: '#b33939',
+    backgroundColor: 'transparent',
     border: 'none',
-    color: '#fff',
+    color: 'red',
     borderRadius: '3px',
-    padding: '2px 6px',
+    padding: '0 6px',
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '16px',
