@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 function App() {
   const [lists, setLists] = useState(() => {
     const saved = localStorage.getItem('lists');
-    return saved ? JSON.parse(saved) : [
-      { id: Date.now(), name: 'Default', tasks: [] }
-    ];
+    return saved
+      ? JSON.parse(saved)
+      : [{ id: Date.now(), name: 'Default', tasks: [] }];
   });
 
   const [taskText, setTaskText] = useState('');
@@ -17,14 +17,17 @@ function App() {
 
   const addTask = () => {
     if (!taskText.trim()) return;
-
     const updatedLists = lists.map(list =>
       list.id === activeListId
         ? {
             ...list,
             tasks: [
               ...list.tasks,
-              { id: Date.now(), text: taskText, createdAt: new Date().toLocaleString() }
+              {
+                id: Date.now(),
+                text: taskText,
+                createdAt: new Date().toLocaleString()
+              }
             ]
           }
         : list
@@ -33,10 +36,29 @@ function App() {
     setTaskText('');
   };
 
-  const deleteTask = (taskId) => {
+  const deleteTask = taskId => {
     const updatedLists = lists.map(list =>
       list.id === activeListId
-        ? { ...list, tasks: list.tasks.filter(task => task.id !== taskId) }
+        ? {
+            ...list,
+            tasks: list.tasks.filter(task => task.id !== taskId)
+          }
+        : list
+    );
+    setLists(updatedLists);
+  };
+
+  const renameTask = taskId => {
+    const newText = prompt('Enter new task name:');
+    if (!newText?.trim()) return;
+    const updatedLists = lists.map(list =>
+      list.id === activeListId
+        ? {
+            ...list,
+            tasks: list.tasks.map(task =>
+              task.id === taskId ? { ...task, text: newText } : task
+            )
+          }
         : list
     );
     setLists(updatedLists);
@@ -52,7 +74,7 @@ function App() {
     setActiveListId(newList.id);
   };
 
-  const renameList = (id) => {
+  const renameList = id => {
     const newName = prompt('Enter new list name:');
     if (!newName?.trim()) return;
     const updatedLists = lists.map(list =>
@@ -61,7 +83,7 @@ function App() {
     setLists(updatedLists);
   };
 
-  const deleteList = (id) => {
+  const deleteList = id => {
     const filteredLists = lists.filter(list => list.id !== id);
     setLists(filteredLists);
     if (activeListId === id && filteredLists.length > 0) {
@@ -81,33 +103,35 @@ function App() {
             key={list.id}
             style={{
               ...styles.tab,
-              backgroundColor: list.id === activeListId ? '#444' : '#333',
-              position: 'relative',
+              backgroundColor: list.id === activeListId ? '#444' : '#333'
             }}
           >
             <span
               onClick={() => setActiveListId(list.id)}
-              style={{ flex: 1, cursor: 'pointer', paddingRight: '25px' }}
+              style={{ flex: 1, cursor: 'pointer' }}
+              title="Select list"
             >
               {list.name}
             </span>
             <button
               onClick={() => renameList(list.id)}
               style={styles.renameListButton}
-              title="Rename List"
+              title="Rename list"
             >
               ✏️
             </button>
             <button
               onClick={() => deleteList(list.id)}
               style={styles.deleteListButton}
-              title="Delete List"
+              title="Delete list"
             >
               ×
             </button>
           </div>
         ))}
-        <button onClick={addList} style={styles.addListButton}>+ Add List</button>
+        <button onClick={addList} style={styles.addListButton}>
+          + Add List
+        </button>
       </div>
 
       <div style={styles.main}>
@@ -125,7 +149,9 @@ function App() {
                 placeholder="Enter new task"
                 style={styles.input}
               />
-              <button onClick={addTask} style={styles.button}>Add</button>
+              <button onClick={addTask} style={styles.button}>
+                Add
+              </button>
             </div>
 
             <ul style={styles.taskList}>
@@ -134,9 +160,24 @@ function App() {
                   <span>{task.text}</span>
                   <div style={styles.taskMeta}>
                     <small>{task.createdAt}</small>
-                    <button onClick={() => deleteTask(task.id)} style={styles.deleteButton}>
-                      <span style={{ color: 'red', fontWeight: 'bold', fontSize: '20px' }}>×</span>
-                    </button>
+                    <div style={styles.taskActions}>
+                      <button
+                        onClick={() => renameTask(task.id)}
+                        style={styles.renameTaskButton}
+                        title="Rename task"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => deleteTask(task.id)}
+                        style={styles.deleteButton}
+                        title="Delete task"
+                      >
+                        <span style={{ color: 'red', fontWeight: 'bold', fontSize: '20px' }}>
+                          ×
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -171,13 +212,12 @@ const styles = {
     borderRadius: '5px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    position: 'relative'
+    justifyContent: 'space-between'
   },
   renameListButton: {
     backgroundColor: 'transparent',
     border: 'none',
-    color: '#ccc',
+    color: '#aaa',
     cursor: 'pointer',
     fontSize: '14px',
     marginRight: '4px'
@@ -251,6 +291,17 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'flex-end',
     gap: '4px'
+  },
+  taskActions: {
+    display: 'flex',
+    gap: '6px'
+  },
+  renameTaskButton: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#aaa',
+    cursor: 'pointer',
+    fontSize: '16px'
   },
   deleteButton: {
     backgroundColor: 'transparent',
