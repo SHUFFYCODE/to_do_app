@@ -63,8 +63,6 @@ function App() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>🗂️ To-Do App (Dark Mode)</h1>
-
       <div style={styles.sidebar}>
         {lists.map(list => (
           <div
@@ -150,27 +148,23 @@ const styles = {
   },
   main: {
     flex: 1,
-    padding: '20px'
-  },
-  title: {
-    position: 'absolute',
-    top: '10px',
-    left: '220px'
+    padding: '30px 20px'
   },
   inputRow: {
     display: 'flex',
     gap: '10px',
-    marginBottom: '15px'
+    marginBottom: '20px'
   },
   input: {
-    padding: '6px',
+    padding: '8px',
     borderRadius: '4px',
     border: '1px solid #555',
     backgroundColor: '#333',
-    color: '#fff'
+    color: '#fff',
+    flex: 1
   },
   button: {
-    padding: '6px 10px',
+    padding: '8px 16px',
     backgroundColor: '#444',
     border: 'none',
     color: '#fff',
