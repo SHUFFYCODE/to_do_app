@@ -63,6 +63,19 @@ function App() {
     setLists(updatedLists);
   };
 
+  const deleteList = (id) => {
+    const updatedLists = lists.filter((list) => list.id !== id);
+    setLists(updatedLists);
+    if (activeListId === id && updatedLists.length > 0) {
+      setActiveListId(updatedLists[0].id);
+    } else if (updatedLists.length === 0) {
+      // If no lists remain, create a default one
+      const defaultList = { id: Date.now(), name: 'Default', tasks: [] };
+      setLists([defaultList]);
+      setActiveListId(defaultList.id);
+    }
+  };
+
   const activeList = lists.find((list) => list.id === activeListId);
 
   return (
@@ -74,14 +87,24 @@ function App() {
             style={{
               ...styles.tab,
               backgroundColor: list.id === activeListId ? '#444' : '#333',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
             }}
-            onClick={() => setActiveListId(list.id)}
           >
             <input
               value={list.name}
               onChange={(e) => renameList(list.id, e.target.value)}
-              style={styles.input}
+              style={{ ...styles.input, margin: 0, flex: 1 }}
             />
+            <button
+              onClick={() => deleteList(list.id)}
+              style={styles.deleteListButton}
+              title="Delete List"
+            >
+              ❌
+            </button>
           </div>
         ))}
         <button onClick={addList} style={styles.addListButton}>
@@ -138,7 +161,7 @@ const styles = {
     fontFamily: 'Arial, sans-serif',
   },
   sidebar: {
-    width: '200px',
+    width: '220px',
     backgroundColor: '#111',
     padding: '10px',
     display: 'flex',
@@ -158,6 +181,17 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+  },
+  deleteListButton: {
+    backgroundColor: '#b33939',
+    border: 'none',
+    color: '#fff',
+    borderRadius: '3px',
+    padding: '2px 6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontSize: '14px',
+    lineHeight: '1',
   },
   main: {
     flex: 1,
