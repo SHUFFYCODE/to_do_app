@@ -52,7 +52,9 @@ function App() {
     setActiveListId(newList.id);
   };
 
-  const renameList = (id, newName) => {
+  const renameList = (id) => {
+    const newName = prompt('Enter new list name:');
+    if (!newName?.trim()) return;
     const updatedLists = lists.map(list =>
       list.id === id ? { ...list, name: newName } : list
     );
@@ -82,22 +84,24 @@ function App() {
               backgroundColor: list.id === activeListId ? '#444' : '#333',
               position: 'relative',
             }}
-            onClick={() => setActiveListId(list.id)}
           >
-            <input
-              value={list.name}
-              onChange={e => renameList(list.id, e.target.value)}
-              style={styles.inputWithDelete}
-              onClick={e => e.stopPropagation()}
-            />
+            <span
+              onClick={() => setActiveListId(list.id)}
+              style={{ flex: 1, cursor: 'pointer', paddingRight: '25px' }}
+            >
+              {list.name}
+            </span>
             <button
-              onClick={e => {
-                e.stopPropagation();
-                deleteList(list.id);
-              }}
+              onClick={() => renameList(list.id)}
+              style={styles.renameListButton}
+              title="Rename List"
+            >
+              ✏️
+            </button>
+            <button
+              onClick={() => deleteList(list.id)}
               style={styles.deleteListButton}
               title="Delete List"
-              aria-label="Delete List"
             >
               ×
             </button>
@@ -108,6 +112,9 @@ function App() {
 
       <div style={styles.main}>
         <h1 style={styles.title}>Essential To-Do List</h1>
+        {activeList && (
+          <h3 style={styles.sectionName}>Now Viewing: {activeList.name}</h3>
+        )}
 
         {activeList ? (
           <>
@@ -128,7 +135,7 @@ function App() {
                   <div style={styles.taskMeta}>
                     <small>{task.createdAt}</small>
                     <button onClick={() => deleteTask(task.id)} style={styles.deleteButton}>
-                      <span style={{color: 'red', fontWeight: 'bold', fontSize: '20px', lineHeight: 1}}>×</span>
+                      <span style={{ color: 'red', fontWeight: 'bold', fontSize: '20px' }}>×</span>
                     </button>
                   </div>
                 </li>
@@ -152,7 +159,7 @@ const styles = {
     fontFamily: 'Arial, sans-serif'
   },
   sidebar: {
-    width: '200px',
+    width: '220px',
     backgroundColor: '#111',
     padding: '10px',
     display: 'flex',
@@ -160,8 +167,27 @@ const styles = {
     gap: '8px'
   },
   tab: {
-    padding: '5px',
+    padding: '8px 5px 8px 10px',
     borderRadius: '5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'relative'
+  },
+  renameListButton: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#ccc',
+    cursor: 'pointer',
+    fontSize: '14px',
+    marginRight: '4px'
+  },
+  deleteListButton: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#aaa',
+    fontWeight: 'bold',
+    fontSize: '16px',
     cursor: 'pointer'
   },
   addListButton: {
@@ -179,6 +205,11 @@ const styles = {
   },
   title: {
     fontSize: '24px',
+    marginBottom: '10px'
+  },
+  sectionName: {
+    fontSize: '16px',
+    color: '#aaa',
     marginBottom: '20px'
   },
   inputRow: {
@@ -193,15 +224,6 @@ const styles = {
     backgroundColor: '#333',
     color: '#fff',
     flex: 1
-  },
-  inputWithDelete: {
-    padding: '8px 24px 8px 8px',
-    borderRadius: '4px',
-    border: '1px solid #555',
-    backgroundColor: '#333',
-    color: '#fff',
-    width: 'calc(100% - 28px)',
-    boxSizing: 'border-box'
   },
   button: {
     padding: '8px 16px',
@@ -235,19 +257,6 @@ const styles = {
     border: 'none',
     padding: 0,
     cursor: 'pointer'
-  },
-  deleteListButton: {
-    position: 'absolute',
-    right: '6px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#aaa',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    fontSize: '18px',
-    padding: '0',
   }
 };
 
